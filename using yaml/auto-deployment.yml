@@ -1,0 +1,16 @@
+on : push 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest 
+    steps:
+      - uses : actions/checkout@v4
+      - name: aws-connect
+        uses : appleboy/aws-ssh:v2
+        with: 
+          host: ip #ec2 public ip
+          username: ec2-user  # EC2 instance username (default for Amazon Linux)
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}  # SSH private key stored in GitHub Secrets
+          port: 22  # SSH port
+          script: |
+            cd /path/to/your/app && git pull origin main  && pm2 restart app # Pull the latest code from the `main` branch
