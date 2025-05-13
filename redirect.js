@@ -1,29 +1,31 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const bodyparser = require('body-parser');
+const { exec }= require('exec');
 const crypto = require('crypto');
-const { exec } = require('exec');
-
-const secret = ' ';
+const PORT = 3000;
+const pass = ' '
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyparser.json());
 
-app.post(3000 , (req,res) => {
-  const key = `sha1=${crypto.createHMAC(secret).update(Json.stringfy(req.body)).digest('hex')}`;
-  const signature = req.headers['x-hub-signature'];
+app.post('/vibe' , (req,res) => {
 
-  if(signature === key)
-  {
-    exec('cd . && git pull origin main && npm install', (error, stdout, stderr) => {
-      if (error) {
-        reject(`exec error: ${error}`);
-        return;
-      }
-      console.log(stdout);
-      console.error(stderr);
-  }
- else
-  {
-    return res.status(505).send('Wrong Signature!');
-  }
+    const sig = req.headers('x-hub-signature');
+    const key = `sha1=${crypto.createHmac('sha1', pass).update(JSON.stringify(req.body)).digest('hex')}`;
+
+    if(sig === key )
+    {
+        exec('cd node-express-hello-world && git pull origin main && pm2 restart app ' , (err,stdout,stderr) =>{
+            if(err)
+            {console.log(`Error:${stderr}`); return res.status(404).send('Unsuccessfull Deployment!');}
+            console.log(stdout);
+        })
+    }
+    else{
+        return res.status(501).send("Wierd error! signature Mismatch");
+    }
 }
+
+);
+
+app.listen(PORT, console.log('Listetning!'));
